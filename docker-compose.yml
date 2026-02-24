@@ -1,0 +1,34 @@
+services:
+  redis:
+    image: redis:7.2-alpine
+    ports: ["6379:6379"]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes:
+      - ollama_data:/root/.ollama
+
+  backend:
+    build: ./backend
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_URL: http://ollama:11434
+      VT_API_KEY: ${VT_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-super-secret}
+      SOC_USER: ${SOC_USER:-socadmin}
+      SOC_PASS: ${SOC_PASS:-socpass}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports: ["8000:8000"]
+    depends_on: [redis, ollama]
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports: ["5173:5173"]
+    depends_on: [backend]
+
+volumes:
+  ollama_data:

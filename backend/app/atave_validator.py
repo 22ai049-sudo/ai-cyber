@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Dict, List
 
 
 @dataclass
@@ -49,44 +49,3 @@ class AtaveValidator:
             severity = "low"
 
         return {"confidence": round(confidence, 2), "severity": severity}
-
-    def validate_model_output(
-        self,
-        confidence: float,
-        severity: str,
-        attack_matches: List[Dict[str, str]],
-        command_validation: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
-        expected = self._severity_for_confidence(confidence)
-        findings: List[str] = []
-        checks = {
-            "severity_consistency": expected == severity,
-            "attack_mapping_present": len(attack_matches) > 0,
-            "unsafe_commands_blocked": all(v.get("allowed") is False for v in command_validation if v.get("violations")),
-        }
-
-        if not checks["severity_consistency"]:
-            findings.append(f"Severity '{severity}' does not match confidence band '{expected}'.")
-        if not checks["attack_mapping_present"]:
-            findings.append("No ATT&CK mapping found; review telemetry quality.")
-        if not checks["unsafe_commands_blocked"]:
-            findings.append("Unsafe command handling failed consistency check.")
-
-        pass_count = sum(1 for value in checks.values() if value)
-        score = round(pass_count / len(checks), 2)
-        return {
-            "score": score,
-            "status": "pass" if score >= 0.67 else "review",
-            "checks": checks,
-            "findings": findings,
-        }
-
-    @staticmethod
-    def _severity_for_confidence(confidence: float) -> str:
-        if confidence >= 0.8:
-            return "critical"
-        if confidence >= 0.6:
-            return "high"
-        if confidence >= 0.4:
-            return "medium"
-        return "low"

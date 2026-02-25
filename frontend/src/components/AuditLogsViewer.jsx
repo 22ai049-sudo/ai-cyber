@@ -1,16 +1,4 @@
 export default function AuditLogsViewer({ logs }) {
   if (!logs?.length) return null
-  return (
-    <section className='card'>
-      <h3>Pipeline Audit Trail</h3>
-      <div className='audit-list'>
-        {logs.map((item, idx) => (
-          <div key={idx} className='audit-row'>
-            <strong>{item.action}</strong>
-            <span>{new Date(item.ts).toLocaleString()}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
+  return <div className='card'><h3>Sandbox & Pipeline Audit Logs</h3><ul>{logs.map((l,i)=><li key={i}><b>{l.action}</b> [{l.ts}]</li>)}</ul></div>
 }

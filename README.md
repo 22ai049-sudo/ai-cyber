@@ -4,12 +4,9 @@ Production-style SOC automation stack using FastAPI, Redis orchestration, Docker
 
 ## Architecture
 
-- **Ingestion**: two analyst-selectable modes are supported in UI: `manual` input and `automatic` malicious-IP collection from global feeds (`/ingestion/automatic`).
-- **Training assist**: optional curated dataset quick-load chips are provided for SOC learning scenarios.
-- **Threat intel enrichment**: Backend enriches IOC with VirusTotal + AbuseIPDB APIs (authenticated via `VT_API_KEY` and `ABUSEIPDB_API_KEY`).
+- **Ingestion**: Analyst/SIEM submits indicator + context to `/incidents/process`.
+- **Threat intel enrichment**: Backend enriches IOC with VirusTotal API (authenticated via `VT_API_KEY`).
 - **Detection & ATT&CK mapping**: IOC/context pattern mapping and risk scoring.
-- **Model correctness checks**: confidence/severity consistency + command safety checks returned in `model_validation`.
-- **CVSS-like risk scoring**: `RiskScoreEngine` produces `risk_score` (0-10), severity, confidence, and factor breakdown.
 - **LLM explainability**: Ollama Mistral 7B generates reasoning and mitigation rationale.
 - **Mitigation generation**: Structured playbook + commands.
 - **Security controls**: Command whitelist + unsafe command rejection.
@@ -58,7 +55,6 @@ Create `.env` with:
 
 ```bash
 VT_API_KEY=<your_virustotal_api_key>
-ABUSEIPDB_API_KEY=<your_abuseipdb_api_key>
 JWT_SECRET=<strong_secret>
 SOC_USER=socadmin
 SOC_PASS=socpass
@@ -122,31 +118,4 @@ Frontend only:
 cd frontend
 npm install
 npm run dev
-```
-
-
-## Data Ingestion (Manual + Automatic)
-
-The platform supports two primary ingestion modes:
-
-- `manual`: analyst-entered IOC and context from the dashboard.
-- `automatic`: pulls suspicious/corrupted IP indicators from global reputation feeds (`blocklist.de`, abuse.ch Feodo tracker) with resilient fallback values.
-
-Real log ingestion is also available through:
-- `GET /ingestion/logs/samples` (Sysmon/Suricata/Wazuh sample payloads)
-- `POST /ingestion/logs/parse` (normalizes raw log to source + indicator + message)
-
-For learning workflows, curated dataset examples from `backend/app/data/sample_incidents.json` can be auto-filled in manual mode.
-
-`/incidents/process` accepts:
-
-```json
-{
-  "source": "suricata",
-  "indicator": "10.10.4.13",
-  "context": {"message": "Repeated failed SSH attempts"},
-  "execute_mitigation": false,
-  "ingestion_mode": "automatic",
-  "dataset_name": null
-}
 ```

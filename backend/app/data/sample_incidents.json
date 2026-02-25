@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Credential brute-force burst",
+    "source": "suricata",
+    "indicator": "10.10.4.13",
+    "message": "Repeated failed SSH login attempts against prod-auth-server-01 from external IP over 5 minutes.",
+    "severity": "high",
+    "dataset": "SOC-Lab: auth_attacks.csv"
+  },
+  {
+    "title": "Suspicious PowerShell execution",
+    "source": "sysmon",
+    "indicator": "endpoint-hr-44",
+    "message": "Encoded PowerShell launched from Office child process with network callback behavior.",
+    "severity": "critical",
+    "dataset": "SOC-Lab: endpoint_process_events.parquet"
+  },
+  {
+    "title": "Possible C2 DNS beaconing",
+    "source": "dns",
+    "indicator": "x7-cache.updates-sync.net",
+    "message": "Periodic DNS TXT lookups every 60 seconds observed from finance-subnet host.",
+    "severity": "medium",
+    "dataset": "SOC-Lab: dns_telemetry.jsonl"
+  }
+]
